@@ -1,4 +1,4 @@
-package puzzle
+package puzzle2024
 
 import (
 	"fmt"
@@ -86,7 +86,7 @@ func puzzle2(listA []int, listB []int) {
 
 func SolvePuzzle1() {
 	// Load the file
-	content := utils.LoadFile()
+	content := utils.LoadFile("puzzle2024/puzzle1.txt")
 
 	listA := []int{}
 	listB := []int{}

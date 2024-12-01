@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/AndersKaae/advent_of_code/puzzle"
+	"github.com/AndersKaae/advent_of_code/puzzle2024"
 )
 
 func main() {
-	puzzle.SolvePuzzle1()
+	puzzle2024.SolvePuzzle1()
 }

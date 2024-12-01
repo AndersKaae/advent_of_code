@@ -6,11 +6,13 @@ import (
 	"os"
 )
 
-func LoadFile() []string {
+func LoadFile(filename string) []string {
 	// Open the file
-	file, err := os.Open("input.txt")
+	file, err := os.Open(filename)
 	if err != nil {
-		fmt.Printf("Failed to open the file: %v", err)
+		err := fmt.Errorf("Failed to open the file: %v", err)
+		panic(err)
+
 	}
 	defer file.Close()
 
