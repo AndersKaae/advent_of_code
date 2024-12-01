@@ -1,4 +1,4 @@
-package files
+package utils
 
 import (
 	"bufio"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func loadFile() []string {
+func LoadFile() []string {
 	// Open the file
 	file, err := os.Open("input.txt")
 	if err != nil {
