@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
+	"strings"
 )
 
 func LoadFile(filename string) []string {
@@ -33,4 +35,15 @@ func LoadFile(filename string) []string {
 
 	// Print the resulting list
 	return lines
+}
+
+func ConvertStringToInt(input string) int {
+	// Remove any whitespace
+	input = strings.TrimSpace(input)
+
+	intOutput, err := strconv.Atoi(input)
+	if err != nil {
+		fmt.Printf("Failed processing %v and got error: %v", input, err)
+	}
+	return intOutput
 }

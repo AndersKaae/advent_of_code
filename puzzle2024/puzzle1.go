@@ -5,20 +5,8 @@ import (
 	"github.com/AndersKaae/advent_of_code/utils"
 	"slices"
 	"sort"
-	"strconv"
 	"strings"
 )
-
-func convertStringToInt(input string) int {
-	// Remove any whitespace
-	input = strings.TrimSpace(input)
-
-	intOutput, err := strconv.Atoi(input)
-	if err != nil {
-		fmt.Printf("Failed processing %v and got error: %v", input, err)
-	}
-	return intOutput
-}
 
 func convertFileToTwoLists(content []string, listA []int, listB []int) ([]int, []int) {
 	for i := 0; i < len(content); i++ {
@@ -26,8 +14,8 @@ func convertFileToTwoLists(content []string, listA []int, listB []int) ([]int, [
 		splitString := strings.Split(content[i], "  ")
 
 		// Convert the string to int
-		intA := convertStringToInt(splitString[0])
-		intB := convertStringToInt(splitString[1])
+		intA := utils.ConvertStringToInt(splitString[0])
+		intB := utils.ConvertStringToInt(splitString[1])
 
 		listA = append(listA, intA)
 		listB = append(listB, intB)
