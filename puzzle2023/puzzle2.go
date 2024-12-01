@@ -92,13 +92,42 @@ func puzzle3(input []string) {
 
 func puzzle4(input []string) {
 	games := populateGames(input)
+	gameId := 1
+
+	game := Games{GameID: gameId, Blue: 0, Red: 0, Green: 0}
+
+	maxGames := []Games{}
+
 	for i := 0; i < len(games); i++ {
-		fmt.Printf("Game %v: Blue: %v, Red: %v, Green: %v\n", games[i].GameID, games[i].Blue, games[i].Red, games[i].Green)
+		if games[i].GameID == gameId {
+			if games[i].Blue > game.Blue {
+				game.Blue = games[i].Blue
+			}
+			if games[i].Red > game.Red {
+				game.Red = games[i].Red
+			}
+			if games[i].Green > game.Green {
+				game.Green = games[i].Green
+			}
+		} else {
+			maxGames = append(maxGames, game)
+			gameId++
+			game = Games{GameID: gameId, Blue: 0, Red: 0, Green: 0}
+			i--
+		}
 	}
+	maxGames = append(maxGames, game)
+	fmt.Println(maxGames)
+
+	power := 0
+	for i := 0; i < len(maxGames); i++ {
+		power += maxGames[i].Blue * maxGames[i].Red * maxGames[i].Green
+	}
+	fmt.Println("Power:", power)
 }
 
 func SolvePuzzle2() {
-	input := utils.LoadFile("puzzle2023/puzzle2sample.txt")
+	input := utils.LoadFile("puzzle2023/puzzle2.txt")
 	//puzzle3(input)
 	puzzle4(input)
 }
