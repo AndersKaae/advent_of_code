@@ -35,27 +35,45 @@ func isSkipSafe(a int, b int) bool {
 	return true
 }
 
-func processReport(report []int, tolerance int) bool {
+func getDirection(report []int) string {
+	sum := 0
+	for i := 0; i < len(report)-1; i++ {
+		diff := report[i] - report[i+1]
+		sum += diff
+	}
+	if sum > 0 {
+		return "down"
+	}
+	return "up"
+}
+
+func isDirectionValid(a int, b int, direction string) bool {
+	if direction == "up" && a > b {
+		return false
+	}
+	if direction == "down" && a < b {
+		return false
+	}
+	if a == b {
+		return false
+	}
+	return true
+}
+
+func processReport(report []int) bool {
 	safe := true
-	direction := ""
+	direction := getDirection(report)
 	for j := 0; j < len(report)-1; j++ {
 		a := report[j]
 		b := report[j+1]
-		safe = isSkipSafe(a, b)
-		if safe == false {
-			return false
-		}
-		if direction == "" {
-			if a > b {
-				direction = "down"
-			} else {
-				direction = "up"
+		fmt.Println(a, b)
+		if safe == true {
+			safe = isDirectionValid(a, b, direction)
+			if safe == true {
+				safe = isSkipSafe(a, b)
 			}
 		}
-		if direction == "down" && a < b {
-			return false
-		}
-		if direction == "up" && a > b {
+		if safe == false {
 			return false
 		}
 	}
@@ -69,9 +87,12 @@ func puzzle3(reportList [][]int, tolerance int) {
 	for i := 0; i < len(reportList); i++ {
 		report := reportList[i]
 		fmt.Println(report)
-		result := processReport(report, tolerance)
+		result := processReport(report)
 		if result == true {
 			numberSaveReports++
+			fmt.Println("Report is safe")
+		} else {
+			fmt.Println("Report is not safe")
 		}
 	}
 	fmt.Println("Number of safe reports", numberSaveReports)
