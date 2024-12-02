@@ -57,25 +57,28 @@ func getDirection(report []int) string {
 	return "up"
 }
 
-func isDirectionValid(a int, b int, direction string) int {
-	if direction == "up" && a > b {
-		return 1
+func isDirectionValid(report []int, direction string, mappedInvalids []bool) []bool {
+	listOfInvalids := []bool{}
+	for i := 0; i < len(report)-1; i++ {
+		if direction == "down" {
+			if report[i] < report[i+1] {
+				listOfInvalids = append(listOfInvalids, false)
+			} else {
+				listOfInvalids = append(listOfInvalids, true)
+			}
+		}
+		if direction == "up" {
+			if report[i] > report[i+1] {
+				listOfInvalids = append(listOfInvalids, false)
+			} else {
+				listOfInvalids = append(listOfInvalids, true)
+			}
+		}
 	}
-	if direction == "down" && a < b {
-		return 1
-	}
-	if a == b {
-		return 2
-	}
-	return 0
-}
-
-func mapInvalids(pos int, invalidPos int, mappedInvalids []bool) []bool {
-	if invalidPos == 1 {
-		mappedInvalids[pos] = false
-	}
-	if invalidPos == 2 {
-		mappedInvalids[pos+1] = false
+	for i := 0; i < len(listOfInvalids); i++ {
+		if listOfInvalids[i] == false {
+			mappedInvalids[i] = false
+		}
 	}
 	return mappedInvalids
 }
@@ -109,19 +112,16 @@ func processReport(report []int) bool {
 
 	fmt.Println(report)
 	mappedInvalids = createMapsinvalids(report)
-	for j := 0; j < len(report)-1; j++ {
-		a := report[j]
-		b := report[j+1]
-		invalidPos := isDirectionValid(a, b, direction)
-		mappedInvalids = mapInvalids(j, invalidPos, mappedInvalids)
+	for {
+		mappedInvalids = isDirectionValid(report, direction, mappedInvalids)
 		mappedInvalids = isSkipSafe(report, mappedInvalids)
-		if problemDampenerUsed == false && slices.Contains(mappedInvalids, false) && j == len(report)-2 {
+		if problemDampenerUsed == false && slices.Contains(mappedInvalids, false) {
 			problemDampenerUsed = true
 			report = removeFirstFalseElement(report, mappedInvalids)
 			mappedInvalids = createMapsinvalids(report)
-			j = -1
 			continue
 		}
+		break
 	}
 
 	fmt.Println(mappedInvalids)
