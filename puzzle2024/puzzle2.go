@@ -23,18 +23,21 @@ func createReportList(content []string) [][]int {
 	return reportList
 }
 
-func isSkipSafe(direction string, a int, b int) int {
-	diff := a - b
-	if diff < 0 {
-		diff = diff * -1
-	}
-	if diff > 3 {
-		if direction == "up" {
-			return 2
+func isSkipSafe(report []int, mappedInvalids []bool) []bool {
+	difflist := []int{}
+	for i := 0; i < len(report)-1; i++ {
+		diff := report[i] - report[i+1]
+		if diff < 0 {
+			diff = diff * -1
 		}
-		return 1
+		difflist = append(difflist, diff)
 	}
-	return 0
+	for i := 0; i < len(difflist)-1; i++ {
+		if difflist[i] > 3 {
+			mappedInvalids[i] = false
+		}
+	}
+	return mappedInvalids
 }
 
 func getDirection(report []int) string {
@@ -111,8 +114,7 @@ func processReport(report []int) bool {
 		b := report[j+1]
 		invalidPos := isDirectionValid(a, b, direction)
 		mappedInvalids = mapInvalids(j, invalidPos, mappedInvalids)
-		invalidPos = isSkipSafe(direction, a, b)
-		mappedInvalids = mapInvalids(j, invalidPos, mappedInvalids)
+		mappedInvalids = isSkipSafe(report, mappedInvalids)
 		if problemDampenerUsed == false && slices.Contains(mappedInvalids, false) && j == len(report)-2 {
 			problemDampenerUsed = true
 			report = removeFirstFalseElement(report, mappedInvalids)
