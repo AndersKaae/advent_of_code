@@ -3,6 +3,7 @@ package puzzle2024
 import (
 	"fmt"
 	"github.com/AndersKaae/advent_of_code/utils"
+	"slices"
 	"strings"
 )
 
@@ -21,18 +22,18 @@ func createReportList(content []string) [][]int {
 	return reportList
 }
 
-func isSkipSafe(a int, b int) bool {
-	if a == b {
-		return false
-	}
+func isSkipSafe(direction string, a int, b int) int {
 	diff := a - b
 	if diff < 0 {
 		diff = diff * -1
 	}
 	if diff > 3 {
-		return false
+		if direction == "up" {
+			return 2
+		}
+		return 1
 	}
-	return true
+	return 0
 }
 
 func getDirection(report []int) string {
@@ -47,62 +48,93 @@ func getDirection(report []int) string {
 	return "up"
 }
 
-func isDirectionValid(a int, b int, direction string) bool {
+func isDirectionValid(a int, b int, direction string) int {
 	if direction == "up" && a > b {
-		return false
+		return 1
 	}
 	if direction == "down" && a < b {
-		return false
+		return 1
 	}
 	if a == b {
-		return false
+		return 2
 	}
-	return true
+	return 0
+}
+
+func mapInvalids(pos int, invalidPos int, mappedInvalids []bool) []bool {
+	if invalidPos == 1 {
+		mappedInvalids[pos] = false
+		mappedInvalids[pos+1] = true
+	}
+	if invalidPos == 2 {
+		mappedInvalids[pos] = true
+		mappedInvalids[pos+1] = false
+	}
+	return mappedInvalids
+}
+
+func removeFirstFalseElement(report []int, mappedInvalids []bool) ([]int, []bool) {
+	for i := 0; i < len(mappedInvalids); i++ {
+		if mappedInvalids[i] == false {
+			// Remove the first false element
+			mappedInvalids = append(mappedInvalids[:i], mappedInvalids[i+1:]...)
+			report = append(report[:i], report[i+1:]...)
+			break
+		}
+	}
+	return report, mappedInvalids
 }
 
 func processReport(report []int) bool {
-	safe := true
 	direction := getDirection(report)
+	mappedInvalids := []bool{}
+	problemDampenerUsed := false
+	for i := 0; i < len(report); i++ {
+		mappedInvalids = append(mappedInvalids, true)
+	}
 	for j := 0; j < len(report)-1; j++ {
+		fmt.Println(report)
 		a := report[j]
 		b := report[j+1]
-		fmt.Println(a, b)
-		if safe == true {
-			safe = isDirectionValid(a, b, direction)
-			if safe == true {
-				safe = isSkipSafe(a, b)
-			}
+		invalidPos := isDirectionValid(a, b, direction)
+		mappedInvalids = mapInvalids(j, invalidPos, mappedInvalids)
+		invalidPos = isSkipSafe(direction, a, b)
+		mappedInvalids = mapInvalids(j, invalidPos, mappedInvalids)
+		if problemDampenerUsed == false && slices.Contains(mappedInvalids, false) {
+			problemDampenerUsed = true
+			report, mappedInvalids = removeFirstFalseElement(report, mappedInvalids)
+			j = -1
+			continue
 		}
-		if safe == false {
-			return false
-		}
+	}
+
+	fmt.Println(mappedInvalids)
+	if slices.Contains(mappedInvalids, false) {
+		return false
 	}
 	return true
 }
 
-func puzzle3(reportList [][]int, tolerance int) {
-
+func puzzle3(reportList [][]int) {
 	numberSaveReports := 0
-
 	for i := 0; i < len(reportList); i++ {
 		report := reportList[i]
-		fmt.Println(report)
 		result := processReport(report)
 		if result == true {
 			numberSaveReports++
-			fmt.Println("Report is safe")
+			fmt.Println("Safe")
 		} else {
-			fmt.Println("Report is not safe")
+			fmt.Println("Not safe")
 		}
 	}
 	fmt.Println("Number of safe reports", numberSaveReports)
 }
 
 func SolvePuzzle2() {
-	content := utils.LoadFile("puzzle2024/puzzle2.txt")
+	content := utils.LoadFile("puzzle2024/puzzle2sample.txt")
 
 	// Convert the file data to a list of list of ints
 	reportList := createReportList(content)
 
-	puzzle3(reportList, 0)
+	puzzle3(reportList)
 }
