@@ -2,7 +2,6 @@ package puzzle2022
 
 import (
 	"fmt"
-
 	"github.com/AndersKaae/advent_of_code/utils"
 )
 
@@ -106,7 +105,8 @@ func SolvePuzzle3Part1() {
 
 func CreateGroupStruct(backpacks []Backpack) []Group {
 	var groupList []Group
-	for i := 1; i < 101; i++ {
+	var totalElfGroups = 100
+	for i := 1; i < totalElfGroups+1; i++ {
 		elfGroup := Group{Number: i}
 		for j := range backpacks {
 			if backpacks[j].Group == i {
@@ -114,25 +114,80 @@ func CreateGroupStruct(backpacks []Backpack) []Group {
 				elfGroup.Backpacks = append(elfGroup.Backpacks, backpacksConcat)
 			}
 		}
-		fmt.Println(elfGroup)
 		if len(elfGroup.Backpacks) != 3 {
 			panic("There are supposed to be 3 elfs in each group")
 		}
 		groupList = append(groupList, elfGroup)
 	}
-	if len(groupList) != 99 {
+	if len(groupList) != totalElfGroups {
 		panic("There are supposed to be 100 groups")
 	}
 	return groupList
+}
 
+func isLetterInString(letter string, stringToCheck string) bool {
+	runes := []rune(stringToCheck)
+	for i := 0; i < len(runes); i++ {
+		if letter == string(runes[i]) {
+			return true
+		}
+	}
+	return false
+}
+
+func FindCommonBadge(groupList []Group) {
+	for group := range groupList {
+		for letter := range abc {
+			found := true
+			if isLetterInString(abc[letter], groupList[group].Backpacks[0]) == false {
+				found = false
+			}
+			if isLetterInString(abc[letter], groupList[group].Backpacks[1]) == false {
+				found = false
+			}
+			if isLetterInString(abc[letter], groupList[group].Backpacks[2]) == false {
+				found = false
+			}
+			if found == true {
+				groupList[group].Common = append(groupList[group].Common, abc[letter])
+			}
+		}
+		if len(groupList[group].Common) != 1 {
+			panic("No commmon badge was found or more than one badge was found!")
+		}
+	}
+}
+
+func GetCummulatedBadgePriorities(group *Group) {
+	for c := range group.Common {
+		found := false
+		for idx, letter := range abc {
+			if letter == group.Common[c] {
+				group.Priority = append(group.Priority, idx+1)
+				found = true
+				break
+			}
+		}
+		if found == false {
+			panic("No Match Found for: " + group.Common[c])
+		}
+	}
 }
 
 func SolvePuzzle3Part2() {
 	backpacks := CreateBackpackStruct()
 	groupList := CreateGroupStruct(backpacks)
+	FindCommonBadge(groupList)
+	totalScore := 0
+	for group := range groupList {
+		GetCummulatedBadgePriorities(&groupList[group])
+		fmt.Println(groupList[group])
+		totalScore += groupList[group].Priority[0]
+	}
+	println(totalScore)
 }
 
 func SolvePuzzle3() {
-	SolvePuzzle3Part1()
+	//SolvePuzzle3Part1()
 	SolvePuzzle3Part2()
 }
