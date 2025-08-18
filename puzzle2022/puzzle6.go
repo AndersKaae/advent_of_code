@@ -8,10 +8,7 @@ import (
 func GetNCharacter(noChars int, idx int, letters []rune) []string {
 	var listOfCharcters []string
 	for i := 0; i < noChars; i++ {
-		listOfCharcters = append(listOfCharcters, string(letters[idx]))
-		listOfCharcters = append(listOfCharcters, string(letters[idx+1]))
-		listOfCharcters = append(listOfCharcters, string(letters[idx+2]))
-		listOfCharcters = append(listOfCharcters, string(letters[idx+3]))
+		listOfCharcters = append(listOfCharcters, string(letters[idx+i]))
 	}
 	return listOfCharcters
 }
@@ -50,4 +47,5 @@ func SolvePuzzle6Solver(noChars int) {
 
 func SolvePuzzle6() {
 	SolvePuzzle6Solver(4)
+	SolvePuzzle6Solver(14)
 }
