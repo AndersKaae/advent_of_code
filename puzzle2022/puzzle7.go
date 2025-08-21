@@ -10,7 +10,7 @@ import (
 
 var (
 	//puzzleInput = utils.LoadFile("puzzle2022/test7.txt")
-	puzzleInput    = utils.LoadFile("puzzle2022/puzzle7.txt")
+	puzzleInput    = utils.LoadFile("puzzle2022/puzzletext/puzzle7.txt")
 	totalDiskSpace = 70000000
 	updateSize     = 30000000
 )
