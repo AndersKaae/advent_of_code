@@ -2,15 +2,17 @@ package puzzle2022
 
 import (
 	"fmt"
+	"github.com/AndersKaae/advent_of_code/utils"
+	"sort"
 	"strconv"
 	"strings"
-
-	"github.com/AndersKaae/advent_of_code/utils"
 )
 
 var (
-	puzzleInput = utils.LoadFile("puzzle2022/test7.txt")
-	//puzzleInput = utils.LoadFile("puzzle2022/puzzle7.txt")
+	//puzzleInput = utils.LoadFile("puzzle2022/test7.txt")
+	puzzleInput    = utils.LoadFile("puzzle2022/puzzle7.txt")
+	totalDiskSpace = 70000000
+	updateSize     = 30000000
 )
 
 type Node struct {
@@ -97,24 +99,36 @@ func PrintSimpleTree(root *Node) {
 	printSimple(root, 0)
 }
 
-func printSimple(n *Node, depth int) {
+func printSimple(n *Node, depth int) (int, []int) {
 	indent := strings.Repeat(" ", depth)
 
-	// Root line as "/"
+	// Print line
 	if n.Parent == nil {
 		fmt.Printf("%s- / (dir, size=%d)\n", indent, n.Size)
 	} else if n.IsDir {
 		fmt.Printf("%s- %s (dir, size=%d)\n", indent, n.Name, n.Size)
-		if n.Size < 100001 {
-			fmt.Println(n.Size)
-		}
 	} else {
 		fmt.Printf("%s- %s (file, size=%d)\n", indent, n.Name, n.Size)
 	}
 
-	for _, c := range n.Children {
-		printSimple(c, depth+1)
+	// Accumulate sum of qualifying directories (<= 100000).
+	sum := 0
+	listOfDirSize := []int{}
+
+	if n.IsDir && n.Parent != nil && n.Size <= 100000 {
+		sum += n.Size
 	}
+	if n.IsDir && n.Parent != nil {
+		listOfDirSize = append(listOfDirSize, n.Size)
+	}
+
+	// Recurse into children and add their sums
+	for _, c := range n.Children {
+		subTotal, subListOfDirSize := printSimple(c, depth+1)
+		sum += subTotal
+		listOfDirSize = append(listOfDirSize, subListOfDirSize...)
+	}
+	return sum, listOfDirSize
 }
 
 func ComputeDirSizes(n *Node) int {
@@ -157,5 +171,19 @@ func SolvePuzzle7() {
 	fmt.Println("PRINT TREE")
 	currentNode = goToRoot(currentNode)
 	ComputeDirSizes(currentNode)
-	printSimple(currentNode, 0)
+	rootDirSize := currentNode.Size
+	sizeForAnswerA, listOfDirsSize := printSimple(currentNode, 0)
+	fmt.Println("Part A answer:", sizeForAnswerA)
+	fmt.Println("Total size:", rootDirSize)
+	freeSpace := totalDiskSpace - rootDirSize
+	fmt.Println("Current free space", freeSpace)
+	spaceToDelete := updateSize - freeSpace
+	fmt.Println("Space needed to delete", spaceToDelete)
+	sort.Ints(listOfDirsSize)
+	for _, size := range listOfDirsSize {
+		fmt.Println(size)
+		if size > spaceToDelete {
+			break
+		}
+	}
 }
