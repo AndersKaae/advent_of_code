@@ -2,13 +2,15 @@ package puzzle2022
 
 import (
 	"fmt"
-	"github.com/AndersKaae/advent_of_code/utils"
 	"strconv"
 	"strings"
+
+	"github.com/AndersKaae/advent_of_code/utils"
 )
 
 var (
-	puzzleInput = utils.LoadFile("puzzle2022/puzzle7.txt")
+	puzzleInput = utils.LoadFile("puzzle2022/test7.txt")
+	//puzzleInput = utils.LoadFile("puzzle2022/puzzle7.txt")
 )
 
 type Node struct {
@@ -27,10 +29,17 @@ func isCommandLine(row string) bool {
 	return false
 }
 
-func CreateNode(parent Node, row string) {
+func goToRoot(current *Node) *Node {
+	for current.Name != "root" {
+		current = ChangeDir(current, "$ CD ..")
+	}
+	return current
+}
+
+func CreateNode(parent *Node, row string) {
 	rowParted := strings.Split(row, " ")
 	if rowParted[0] == "dir" {
-		newFolder := &Node{Name: rowParted[1], IsDir: true, Size: 0, Parent: &parent}
+		newFolder := &Node{Name: rowParted[1], IsDir: true, Size: 0, Parent: parent}
 		fmt.Println("Created node", newFolder)
 		parent.Children = append(parent.Children, newFolder)
 	} else {
@@ -38,14 +47,13 @@ func CreateNode(parent Node, row string) {
 		if err != nil {
 			panic("Error converting size string to int")
 		}
-		newFile := &Node{Name: rowParted[1], IsDir: false, Size: intSize, Parent: &parent}
+		newFile := &Node{Name: rowParted[1], IsDir: false, Size: intSize, Parent: parent}
 		fmt.Println("Created node", newFile)
 		parent.Children = append(parent.Children, newFile)
 	}
-
 }
 
-func ListFiles(parent Node, idx int) {
+func ListFiles(parent *Node, idx int) {
 	fmt.Println("Listing files:")
 	idx += 1 // We make sure to go to the first file
 	for true {
@@ -59,18 +67,80 @@ func ListFiles(parent Node, idx int) {
 		CreateNode(parent, puzzleInput[idx])
 		idx += 1
 	}
+}
 
+func ChangeDir(currentNode *Node, row string) *Node {
+	folderName := strings.Split(row, " ")[2]
+	if folderName == ".." {
+		fmt.Println("Change Dir up from", currentNode.Name)
+		if currentNode.Name == "root" {
+			panic("Already at root, cannot go up")
+		}
+		return currentNode.Parent
+	} else {
+		fmt.Println("Change Dir to", folderName)
+		for _, child := range currentNode.Children {
+			fmt.Println(child)
+			if child.Name == folderName {
+				return child
+			}
+		}
+		panic("Child not found!")
+	}
+}
+
+func PrintSimpleTree(root *Node) {
+	if root == nil {
+		fmt.Println("<empty>")
+		return
+	}
+	printSimple(root, 0)
+}
+
+func printSimple(n *Node, depth int) {
+	indent := strings.Repeat(" ", depth)
+
+	// Root line as "/"
+	if n.Parent == nil {
+		fmt.Printf("%s- / (dir, size=%d)\n", indent, n.Size)
+	} else if n.IsDir {
+		fmt.Printf("%s- %s (dir, size=%d)\n", indent, n.Name, n.Size)
+		if n.Size < 100001 {
+			fmt.Println(n.Size)
+		}
+	} else {
+		fmt.Printf("%s- %s (file, size=%d)\n", indent, n.Name, n.Size)
+	}
+
+	for _, c := range n.Children {
+		printSimple(c, depth+1)
+	}
+}
+
+func ComputeDirSizes(n *Node) int {
+	if n == nil {
+		return 0
+	}
+	if !n.IsDir {
+		return n.Size
+	}
+	total := 0
+	for _, c := range n.Children {
+		total += ComputeDirSizes(c)
+	}
+	n.Size = total
+	return total
 }
 
 func SolvePuzzle7() {
-	var currentNode Node
+	var currentNode *Node
 	for idx, row := range puzzleInput {
 		if !isCommandLine(row) {
 			continue
 		}
 		fmt.Println(row)
 		if row == "$ cd /" {
-			currentNode := &Node{
+			currentNode = &Node{
 				Name:     "root",
 				IsDir:    true,
 				Size:     0,
@@ -80,12 +150,12 @@ func SolvePuzzle7() {
 		} else if row == "$ ls" {
 			ListFiles(currentNode, idx)
 		} else if strings.Contains(row, "$ cd") {
-			rowSplit := strings.Split(row, " ")
-			if rowSplit[2] == ".." {
-				fmt.Println("Change Dir up")
-			} else {
-				fmt.Println("Change Dir to", rowSplit[2])
-			}
+			currentNode = ChangeDir(currentNode, row)
 		}
 	}
+
+	fmt.Println("PRINT TREE")
+	currentNode = goToRoot(currentNode)
+	ComputeDirSizes(currentNode)
+	printSimple(currentNode, 0)
 }
