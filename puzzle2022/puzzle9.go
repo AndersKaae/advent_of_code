@@ -1,14 +1,17 @@
 package puzzle2022
 
 import (
+	//"bufio"
 	"fmt"
 	"github.com/AndersKaae/advent_of_code/utils"
+	"math"
+	//"os"
 	"strings"
 )
 
 type Rope struct {
 	Location Coordinates
-	Visited  Coordinates
+	Visited  []Coordinates
 }
 
 type Coordinates struct {
@@ -19,6 +22,13 @@ type Coordinates struct {
 type Move struct {
 	Direction string
 	Places    int
+}
+
+type Board struct {
+	MinX int
+	MaxX int
+	MinY int
+	MaxY int
 }
 
 func CreateMovesStrucs(input []string) []Move {
@@ -73,11 +83,98 @@ func MoveHead(move Move, rope Rope) Rope {
 	return rope
 }
 
+func isRopeTaut(ropeHead Rope, ropeTail Rope) bool {
+	dx := int(math.Abs(float64(ropeHead.Location.X - ropeTail.Location.X)))
+	dy := int(math.Abs(float64(ropeHead.Location.Y - ropeTail.Location.Y)))
+	if dx > 1 || dy > 1 {
+		return true
+	}
+	return false
+}
+
+func MoveTail(ropeHead Rope, ropeTail Rope) Rope {
+	if !isRopeTaut(ropeHead, ropeTail) {
+		return ropeTail
+	}
+	ropeTail.Location = ropeHead.Visited[len(ropeHead.Visited)-1]
+	return ropeTail
+}
+
+func GetUniqueTailPositions(ropeTail Rope) int {
+	uniquCoords := []Coordinates{}
+	for _, coords := range ropeTail.Visited {
+		found := false
+		for _, uCord := range uniquCoords {
+			if uCord == coords {
+				found = true
+			}
+		}
+		if found == false {
+			uniquCoords = append(uniquCoords, coords)
+		}
+	}
+	return len(uniquCoords)
+}
+
+func DrawMovements(ropeHead Rope, ropeTail Rope) {
+	// Finding the outer bounds
+	board := Board{MinX: 0, MaxX: 0, MinY: 0, MaxY: 0}
+	for _, move := range ropeHead.Visited {
+		if move.X < board.MinX {
+			board.MinX = move.X
+		}
+		if move.X > board.MaxX {
+			board.MaxX = move.X
+		}
+		if move.Y < board.MinY {
+			board.MinY = move.Y
+		}
+		if move.Y > board.MaxY {
+			board.MaxY = move.Y
+		}
+	}
+	fmt.Println(board)
+
+	for idx, move := range ropeHead.Visited {
+		fmt.Println(move)
+		for y := board.MaxY; board.MinX <= y; y-- {
+			for x := board.MinX; board.MaxX >= x; x++ {
+				if move.X == x && move.Y == y {
+					fmt.Printf("H")
+				} else if ropeTail.Visited[idx].X == x && ropeTail.Visited[idx].Y == y {
+					fmt.Printf("T")
+				} else {
+					fmt.Printf(".")
+				}
+			}
+			fmt.Println()
+		}
+		//bufio.NewReader(os.Stdin).ReadBytes('\n')
+		fmt.Println()
+	}
+}
+
+func CreateTailStructs(number int) []Rope {
+	ropeTailList := []Rope{}
+	ropeTail := Rope{
+		Location: Coordinates{X: 0, Y: 0},
+		Visited:  []Coordinates{{X: 0, Y: 0}},
+	}
+	for i := 0; i < number; i++ {
+		ropeTailList = append(ropeTailList, ropeTail)
+	}
+	return ropeTailList
+}
+
 func SolvePuzzle9() {
+	var tailNumber int = 9
 	input := utils.LoadFile("puzzle2022/puzzletext/test9.txt")
 	movesList := CreateMovesStrucs(input)
+	ropeTailList := CreateTailStructs(tailNumber)
+	ropeTail := ropeTailList[0] // TODO This should be deleted
 	ropeHead := Rope{
 		Location: Coordinates{X: 0, Y: 0},
+		Visited:  []Coordinates{{X: 0, Y: 0}},
 	}
 	for _, move := range movesList {
 		fmt.Println("MOVE: ", move)
@@ -87,8 +184,12 @@ func SolvePuzzle9() {
 				break
 			}
 			ropeHead = MoveHead(move, ropeHead)
-			fmt.Println("Rope", ropeHead, ", Destination", destination)
+			ropeTail = MoveTail(ropeHead, ropeTail)
+			ropeHead.Visited = append(ropeHead.Visited, Coordinates{X: ropeHead.Location.X, Y: ropeHead.Location.Y})
+			ropeTail.Visited = append(ropeTail.Visited, Coordinates{X: ropeTail.Location.X, Y: ropeTail.Location.Y})
 		}
 	}
-
+	//DrawMovements(ropeHead, ropeTail)
+	number := GetUniqueTailPositions(ropeTail)
+	fmt.Println(number)
 }
