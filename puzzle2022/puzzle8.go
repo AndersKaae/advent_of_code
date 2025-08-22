@@ -11,6 +11,10 @@ type Tree struct {
 	Y           int
 	Height      int
 	Visible     bool
+	NorthScore  int
+	SouthScore  int
+	WestScore   int
+	EastScore   int
 	ScenicScore int
 }
 
@@ -29,8 +33,8 @@ func PrintColored(tree Tree) {
 }
 
 func CreateTreeStruct() []Tree {
-	puzzleInput = utils.LoadFile("puzzle2022/puzzletext/test8.txt")
-	//puzzleInput = utils.LoadFile("puzzle2022/puzzletext/puzzle8.txt")
+	//puzzleInput = utils.LoadFile("puzzle2022/puzzletext/test8.txt")
+	puzzleInput = utils.LoadFile("puzzle2022/puzzletext/puzzle8.txt")
 
 	treeSquareHeight = len(puzzleInput)
 	y := treeSquareHeight - 1
@@ -150,9 +154,107 @@ func SolvePuzzle8Part1() {
 	CalcVisibleTrees()
 }
 
+func CheckWest(treeExamined *Tree) {
+	score := 0
+	if treeExamined.X == 0 {
+		treeExamined.WestScore = score
+	}
+	for x := treeExamined.X - 1; x >= 0; x-- {
+		//fmt.Println(x)
+		treeCompared := FindTree(x, treeExamined.Y)
+		//fmt.Println("Orginial:", treeExamined.Height, "New tree:", treeCompared.Height)
+		if treeCompared.Height < treeExamined.Height {
+			score += 1
+		} else {
+			score += 1
+			break
+		}
+	}
+	treeExamined.WestScore = score
+}
+
+func CheckEast(treeExamined *Tree) {
+	score := 0
+	if treeExamined.X == treeSquareHeight-1 {
+		treeExamined.NorthScore = score
+		return // TODO if we fail, we should reconsider i 0 is right
+	}
+	for x := treeExamined.X + 1; x < treeSquareHeight; x++ {
+		//fmt.Println(x)
+		treeCompared := FindTree(x, treeExamined.Y)
+		//fmt.Println("Orginial:", treeExamined.Height, "New tree:", treeCompared.Height)
+		if treeCompared.Height < treeExamined.Height {
+			score += 1
+		} else {
+			score += 1
+			break
+		}
+	}
+	treeExamined.EastScore = score
+}
+
+func CheckNorth(treeExamined *Tree) {
+	score := 0
+	if treeExamined.Y == treeSquareHeight-1 {
+		treeExamined.NorthScore = score
+		return // TODO if we fail, we should reconsider i 0 is right
+	}
+	for y := treeExamined.Y + 1; y < treeSquareHeight; y++ {
+		treeCompared := FindTree(treeExamined.X, y)
+		if treeCompared.Height < treeExamined.Height {
+			score += 1
+		} else {
+			score += 1
+			break
+		}
+	}
+	treeExamined.NorthScore = score
+}
+
+func CheckSouth(treeExamined *Tree) {
+	score := 0
+	if treeExamined.Y == 0 {
+		treeExamined.SouthScore = score
+		return // TODO if we fail, we should reconsider i 0 is right
+	}
+	for y := treeExamined.Y - 1; y >= 0; y-- {
+		//fmt.Println(y)
+		treeCompared := FindTree(treeExamined.X, y)
+		//fmt.Println("Orginial:", treeExamined.Height, "New tree:", treeCompared.Height)
+		if treeCompared.Height < treeExamined.Height {
+			score += 1
+		} else {
+			score += 1
+			break
+		}
+	}
+	treeExamined.SouthScore = score
+}
+
 func SolvePuzzle8Part2() {
-	treeList := CreateTreeStruct()
-	PrintTrees(treeList, true)
+	// First we Loop over each tree
+	for row := range treeSquareHeight {
+		for x := range treeSuareWidth {
+			// Then we evaluate the score of each tree
+			y := treeSquareHeight - (row + 1)
+			tree := FindTree(x, y)
+			CheckNorth(tree)
+			CheckSouth(tree)
+			CheckWest(tree)
+			CheckEast(tree)
+			tree.ScenicScore = tree.NorthScore * tree.WestScore * tree.EastScore * tree.SouthScore
+			//fmt.Printf("(X:%d,Y:%d),N: %d, W: %d, E: %d, S: %d\n", tree.X, tree.Y, tree.NorthScore, tree.WestScore, tree.EastScore, tree.SouthScore)
+			fmt.Printf("%d", tree.ScenicScore)
+		}
+		println()
+	}
+	highestScore := 0
+	for _, tree := range treeList {
+		if tree.ScenicScore > highestScore {
+			highestScore = tree.ScenicScore
+		}
+	}
+	fmt.Println("Highest scenic score:", highestScore)
 }
 
 func SolvePuzzle8() {
