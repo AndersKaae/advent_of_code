@@ -92,12 +92,24 @@ func isRopeTaut(ropeHead Rope, ropeTail Rope) bool {
 	return false
 }
 
-func MoveTail(ropeHead Rope, ropeTail Rope) Rope {
-	if !isRopeTaut(ropeHead, ropeTail) {
-		return ropeTail
+func MoveTail(ropeHead Rope, ropeTailList []Rope) []Rope {
+	last := ropeHead.Visited[len(ropeHead.Visited)-1]
+
+	for idx := range ropeTailList {
+		if idx == 0 {
+			if !isRopeTaut(ropeHead, ropeTailList[idx]) {
+				continue
+			}
+			ropeTailList[idx].Location = last
+		} else {
+			if !isRopeTaut(ropeTailList[idx-1], ropeTailList[idx]) {
+				continue
+			}
+			prev := ropeTailList[idx-1]
+			ropeTailList[idx].Location = prev.Visited[len(prev.Visited)-1]
+		}
 	}
-	ropeTail.Location = ropeHead.Visited[len(ropeHead.Visited)-1]
-	return ropeTail
+	return ropeTailList
 }
 
 func GetUniqueTailPositions(ropeTail Rope) int {
@@ -116,7 +128,7 @@ func GetUniqueTailPositions(ropeTail Rope) int {
 	return len(uniquCoords)
 }
 
-func DrawMovements(ropeHead Rope, ropeTail Rope) {
+func DrawMovements(ropeHead Rope, ropeTailList []Rope) {
 	// Finding the outer bounds
 	board := Board{MinX: 0, MaxX: 0, MinY: 0, MaxY: 0}
 	for _, move := range ropeHead.Visited {
@@ -136,14 +148,22 @@ func DrawMovements(ropeHead Rope, ropeTail Rope) {
 	fmt.Println(board)
 
 	for idx, move := range ropeHead.Visited {
-		fmt.Println(move)
+		fmt.Printf("Move %d: %v\n", idx, move)
 		for y := board.MaxY; board.MinX <= y; y-- {
 			for x := board.MinX; board.MaxX >= x; x++ {
+				foundTail := false
 				if move.X == x && move.Y == y {
 					fmt.Printf("H")
-				} else if ropeTail.Visited[idx].X == x && ropeTail.Visited[idx].Y == y {
-					fmt.Printf("T")
-				} else {
+					continue
+				}
+				for _, ropeTail := range ropeTailList {
+					if ropeTail.Location.X == x && ropeTail.Location.Y == y {
+						fmt.Printf("T")
+						foundTail = true
+						break
+					}
+				}
+				if foundTail == false {
 					fmt.Printf(".")
 				}
 			}
@@ -168,10 +188,9 @@ func CreateTailStructs(number int) []Rope {
 
 func SolvePuzzle9() {
 	var tailNumber int = 9
-	input := utils.LoadFile("puzzle2022/puzzletext/test9.txt")
+	input := utils.LoadFile("puzzle2022/puzzletext/test9b.txt")
 	movesList := CreateMovesStrucs(input)
 	ropeTailList := CreateTailStructs(tailNumber)
-	ropeTail := ropeTailList[0] // TODO This should be deleted
 	ropeHead := Rope{
 		Location: Coordinates{X: 0, Y: 0},
 		Visited:  []Coordinates{{X: 0, Y: 0}},
@@ -184,12 +203,17 @@ func SolvePuzzle9() {
 				break
 			}
 			ropeHead = MoveHead(move, ropeHead)
-			ropeTail = MoveTail(ropeHead, ropeTail)
+			ropeTailList = MoveTail(ropeHead, ropeTailList)
 			ropeHead.Visited = append(ropeHead.Visited, Coordinates{X: ropeHead.Location.X, Y: ropeHead.Location.Y})
-			ropeTail.Visited = append(ropeTail.Visited, Coordinates{X: ropeTail.Location.X, Y: ropeTail.Location.Y})
+			for i := range ropeTailList {
+				ropeTailList[i].Visited = append(
+					ropeTailList[i].Visited,
+					Coordinates{X: ropeTailList[i].Location.X, Y: ropeTailList[i].Location.Y},
+				)
+			}
 		}
 	}
-	//DrawMovements(ropeHead, ropeTail)
-	number := GetUniqueTailPositions(ropeTail)
+	DrawMovements(ropeHead, ropeTailList)
+	number := GetUniqueTailPositions(ropeTailList[len(ropeTailList)-1])
 	fmt.Println(number)
 }
