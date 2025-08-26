@@ -1,11 +1,11 @@
 package puzzle2022
 
 import (
-	//"bufio"
+	"bufio"
 	"fmt"
 	"github.com/AndersKaae/advent_of_code/utils"
 	"math"
-	//"os"
+	"os"
 	"strings"
 )
 
@@ -156,9 +156,9 @@ func DrawMovements(ropeHead Rope, ropeTailList []Rope) {
 					fmt.Printf("H")
 					continue
 				}
-				for _, ropeTail := range ropeTailList {
-					if ropeTail.Location.X == x && ropeTail.Location.Y == y {
-						fmt.Printf("T")
+				for Tailidx, ropeTail := range ropeTailList {
+					if ropeTail.Visited[idx].X == x && ropeTail.Visited[idx].Y == y {
+						fmt.Printf("%d", Tailidx+1)
 						foundTail = true
 						break
 					}
@@ -169,7 +169,7 @@ func DrawMovements(ropeHead Rope, ropeTailList []Rope) {
 			}
 			fmt.Println()
 		}
-		//bufio.NewReader(os.Stdin).ReadBytes('\n')
+		bufio.NewReader(os.Stdin).ReadBytes('\n')
 		fmt.Println()
 	}
 }
