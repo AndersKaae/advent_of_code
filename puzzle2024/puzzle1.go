@@ -74,7 +74,7 @@ func puzzle2(listA []int, listB []int) {
 
 func SolvePuzzle1() {
 	// Load the file
-	content := utils.LoadFile("puzzle2024/puzzle1.txt")
+	content := utils.LoadFile("puzzle2024/puzzletext/puzzle1.txt")
 
 	listA := []int{}
 	listB := []int{}
