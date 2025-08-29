@@ -9,7 +9,9 @@ import (
 
 func main() {
 	//puzzle2024.SolvePuzzle1()
-	puzzle2024.SolvePuzzle2()
+	//puzzle2024.SolvePuzzle2()
+	//puzzle2024.SolvePuzzle3()
+	puzzle2024.SolvePuzzle4()
 	//puzzle2023.SolvePuzzle1()
 	//puzzle2023.SolvePuzzle2()
 	//puzzle2024.SolvePuzzle2()

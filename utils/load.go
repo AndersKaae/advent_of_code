@@ -37,15 +37,12 @@ func LoadFile(filename string) []string {
 	return lines
 }
 
-func ConvertStringToInt(input string) int {
+func ConvertStringToInt(input string) (int, error) {
 	// Remove any whitespace
 	input = strings.TrimSpace(input)
 
 	intOutput, err := strconv.Atoi(input)
-	if err != nil {
-		fmt.Printf("Failed processing %v and got error: %v", input, err)
-	}
-	return intOutput
+	return intOutput, err
 }
 
 func Contains[T comparable](slice []T, val T) bool {

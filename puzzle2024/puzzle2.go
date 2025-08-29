@@ -19,7 +19,10 @@ func FormatPuzzleInput(puzzleInput []string) []Row {
 		splitRow := strings.Split(row, " ")
 		newRow := Row{}
 		for _, numberStr := range splitRow {
-			numberInt := utils.ConvertStringToInt(numberStr)
+			numberInt, err := utils.ConvertStringToInt(numberStr)
+			if err != nil {
+				panic("Unexpected error converting string to int")
+			}
 			newRow = Row{content: append(newRow.content, numberInt)}
 		}
 		structList = append(structList, newRow)
@@ -75,43 +78,60 @@ func GetDirections(row Row) Row {
 	return row
 }
 
-func CountSaveReports(structList []Row) int {
-	saveReportUp := 0
-	saveReportDown := 0
-	for _, row := range structList {
-		tmpSaveUp := true
-		for _, safe := range row.directionUp {
-			if safe == false {
-				tmpSaveUp = false
-			}
-		}
-		if tmpSaveUp == true {
-			saveReportUp++
-		}
-
-		tmpSaveDown := true
-		for _, safe := range row.directionDown {
-			if safe == false {
-				tmpSaveDown = false
-			}
-		}
-		if tmpSaveDown == true {
-			saveReportDown++
+func RowSafe(row Row) bool {
+	tmpSaveUp := true
+	for _, safe := range row.directionUp {
+		if safe == false {
+			tmpSaveUp = false
 		}
 	}
-	return saveReportDown + saveReportUp
+	if tmpSaveUp == true {
+		return true
+	}
+
+	tmpSaveDown := true
+	for _, safe := range row.directionDown {
+		if safe == false {
+			tmpSaveDown = false
+		}
+	}
+	if tmpSaveDown == true {
+		return true
+	}
+	return false
+}
+
+func removeAtIndex(s []int, i int) []int {
+	out := make([]int, 0, len(s)-1)
+	out = append(out, s[:i]...)
+	out = append(out, s[i+1:]...)
+	return out
 }
 
 func SolvePuzzle2() {
-	puzzleIntput := utils.LoadFile("puzzle2024/puzzletext/puzzle2sample.txt")
+	retry := true
+	puzzleIntput := utils.LoadFile("puzzle2024/puzzletext/puzzle2.txt")
 	structList := FormatPuzzleInput(puzzleIntput)
+	safeCount := 0
 
 	for i := range structList {
+		structList[i] = GetDirections(structList[i])
 		fmt.Println(structList[i])
-		structList[i] = GetDirections(structList[i]) // write back
-		fmt.Println(structList[i])
+		if RowSafe(structList[i]) == true {
+			safeCount++
+		} else if retry == true {
+			for n := len(structList[i].content) - 1; n >= 0; n-- {
+				rowMissingOne := Row{content: removeAtIndex(structList[i].content, n)}
+				rowMissingOne = GetDirections(rowMissingOne)
+				if RowSafe(rowMissingOne) == true {
+					structList[i] = rowMissingOne
+					safeCount++
+					break
+				}
+			}
+		}
 	}
 
 	DrawResults(structList)
-	fmt.Println(CountSaveReports(structList))
+	fmt.Printf("There are %d safe rows\n", safeCount)
 }

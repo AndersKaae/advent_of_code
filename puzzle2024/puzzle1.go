@@ -14,9 +14,14 @@ func convertFileToTwoLists(content []string, listA []int, listB []int) ([]int, [
 		splitString := strings.Split(content[i], "  ")
 
 		// Convert the string to int
-		intA := utils.ConvertStringToInt(splitString[0])
-		intB := utils.ConvertStringToInt(splitString[1])
-
+		intA, err := utils.ConvertStringToInt(splitString[0])
+		if err != nil {
+			panic("Cant convert string to int")
+		}
+		intB, err := utils.ConvertStringToInt(splitString[1])
+		if err != nil {
+			panic("Cant convert string to int")
+		}
 		listA = append(listA, intA)
 		listB = append(listB, intB)
 	}
