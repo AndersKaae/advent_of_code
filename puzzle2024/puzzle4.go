@@ -12,6 +12,12 @@ type Character struct {
 	ParOfWord bool
 }
 
+type Direction struct {
+	Direction string
+	Sucess    bool
+	Character Character
+}
+
 var (
 	height int
 	width  int
@@ -35,12 +41,11 @@ func FindIdxCharacter(x int, y int, characterList []Character) int {
 			return idx
 		}
 	}
-	panic("Character not found!")
-
+	return -1
 }
 
 func DrawPuzzle4(characterList []Character) {
-	for y := height - 1; y >= 0; y-- {
+	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			idx := FindIdxCharacter(x, y, characterList)
 			if characterList[idx].ParOfWord == false {
@@ -53,49 +58,54 @@ func DrawPuzzle4(characterList []Character) {
 	}
 }
 
-func CheckHorisontal(idx int, cl []Character) ([]Character, int) {
-	wordCount := 0
-
-	// TODO: Make sure that the offset to avoid out of bounds errors are correct
-
-	if idx+2 < len(cl) && cl[idx+1].Content == "M" && cl[idx+2].Content == "A" && cl[idx+3].Content == "S" {
-		cl[idx+0].ParOfWord = true
-		cl[idx+1].ParOfWord = true
-		cl[idx+2].ParOfWord = true
-		cl[idx+3].ParOfWord = true
-		wordCount++
-
+func CreateDirectionsStruct() []Direction {
+	directions := []string{"up", "down", "left", "right", "upLeft", "upRight", "downLeft", "downRight"}
+	directionStruct := []Direction{}
+	for _, dir := range directions {
+		directionStruct = append(directionStruct, Direction{Direction: dir, Sucess: false})
 	}
-	if idx > 2 && cl[idx-1].Content == "M" && cl[idx-2].Content == "A" && cl[idx-3].Content == "S" {
-		cl[idx-0].ParOfWord = true
-		cl[idx-1].ParOfWord = true
-		cl[idx-2].ParOfWord = true
-		cl[idx-3].ParOfWord = true
-		wordCount++
-	}
-	return cl, wordCount
+	return directionStruct
 }
 
-func CheckVertical(idx int, cl []Character) ([]Character, int) {
-	wordCount := 0
-	if cl[idx-(width)].Content == "M" && cl[idx-(width*2)].Content == "A" && cl[idx-(width*3)].Content == "S" {
-		cl[idx].ParOfWord = true
-		cl[idx-(width*1)].ParOfWord = true
-		cl[idx-(width*2)].ParOfWord = true
-		cl[idx-(width*3)].ParOfWord = true
-		wordCount++
+func GetDirection(x int, y int, direction Direction, cl []Character) direction {
+	idx := -1
+	if direction.Direction == "up" {
+		idx = FindIdxCharacter(x, y+1, cl)
+	} else if direction.Direction == "down" {
+		idx = FindIdxCharacter(x, y-1, cl)
+	} else if direction.Direction == "left" {
+		idx = FindIdxCharacter(x-1, y, cl)
+	} else if direction.Direction == "right" {
+		idx = FindIdxCharacter(x+1, y, cl)
+	} else if direction.Direction == "upLeft" {
+		idx = FindIdxCharacter(x-1, y+1, cl)
+	} else if direction.Direction == "upRight" {
+		idx = FindIdxCharacter(x+1, y+1, cl)
+	} else if direction.Direction == "downLeft" {
+		idx = FindIdxCharacter(x-1, y-1, cl)
+	} else if direction.Direction == "downRight" {
+		idx = FindIdxCharacter(x-1, y-1, cl)
+	} else {
+		panic("Unknown direction")
 	}
-	return cl, wordCount
+	if cl[idx].Content == letter {
+
+	}
+	return idx
 }
 
-func DetectXmas(characterList []Character) ([]Character, int) {
+func DetectXmas(cl []Character) ([]Character, int) {
 	totalWordCount := 0
-	for idx := range characterList {
-		if characterList[idx].Content == "X" {
-			wordCount := 0
-			characterList, wordCount = CheckHorisontal(idx, characterList)
-			totalWordCount += wordCount
-			characterList, wordCount = CheckVertical(idx, characterList)
+	directionsStruct := CreateDirectionsStruct()
+	lettersNeeded := []string{"M", "A", "S"}
+	for idx := range cl {
+		if cl[idx].Content == "X" {
+			x := cl[idx].X
+			y := cl[idx].Y
+
+			for _, direction := range directionsStruct {
+
+			}
 		}
 	}
 	return characterList, totalWordCount
@@ -103,7 +113,7 @@ func DetectXmas(characterList []Character) ([]Character, int) {
 
 func SolvePuzzle4() {
 	totalWordCount := 0
-	var input = utils.LoadFile("puzzle2024/puzzletext/puzzle4sample.txt")
+	var input = utils.LoadFile("puzzle2024/puzzletext/puzzle4.txt")
 	height = len(input)
 	width = len(input[0])
 	characterList := CreateCharacterStructs(input)
