@@ -75,8 +75,11 @@ func puzzle1(input []string) {
 			}
 		}
 
-		result := utils.ConvertStringToInt(digit1 + digit2)
-		sum += result
+		result, err := utils.ConvertStringToInt(digit1 + digit2)
+		if err != nil {
+			fmt.Println("Error converting to int:", err)
+		}
+		sum += resulat
 
 	}
 	fmt.Println("The sum is", sum)
@@ -97,7 +100,11 @@ func puzzle2(input []string) {
 	for i := 0; i < len(first); i++ {
 		result := first[i] + last[i]
 		fmt.Println("The result is", result)
-		sum += utils.ConvertStringToInt(result)
+		subSum, err := utils.ConvertStringToInt(result)
+		if err != nil {
+			fmt.Println("Error converting to int:", err)
+		}
+		sum += subSum
 	}
 
 	fmt.Println("The sum is", sum)

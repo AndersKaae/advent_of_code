@@ -36,7 +36,10 @@ func populateGames(input []string) []Games {
 				rolls[k] = strings.TrimSpace(rolls[k])
 				units := strings.Split(rolls[k], " ")
 
-				score := utils.ConvertStringToInt(units[0])
+				score, err := utils.ConvertStringToInt(units[0])
+				if err != nil {
+					fmt.Println("Error converting score to int:", err)
+				}
 				color := units[1]
 
 				if color == "red" {
