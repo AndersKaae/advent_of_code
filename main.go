@@ -26,5 +26,6 @@ func main() {
 	//puzzle2022.SolvePuzzle7()
 	//puzzle2022.SolvePuzzle8()
 	//puzzle2022.SolvePuzzle9()
-	puzzle2021.SolvePuzzle1()
+	//puzzle2021.SolvePuzzle1()
+	puzzle2021.SolvePuzzle2()
 }
