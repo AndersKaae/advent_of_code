@@ -54,6 +54,20 @@ func SolvePuzzle2() {
 	fmt.Println(invalidSum)
 }
 
+func splitString(n int, s string) []string {
+	var result []string
+
+	for i := 0; i < len(s); i += n {
+		end := i + n
+		if end > len(s) {
+			end = len(s)
+		}
+		result = append(result, s[i:end])
+	}
+
+	return result
+}
+
 func IsInvalidId(id int) bool {
 	idStr := strconv.Itoa(id)
 	idLenght := len(idStr)
