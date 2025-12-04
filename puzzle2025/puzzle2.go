@@ -43,7 +43,6 @@ func SolvePuzzle2() {
 	puzzle := "A"
 	productList := CreatStruct()
 	for i := range productList {
-		fmt.Println(productList[i])
 		for n := productList[i].firstIdInt; n <= productList[i].secondIdInt; n++ {
 			nStr := strconv.Itoa(n)
 
@@ -58,10 +57,11 @@ func SolvePuzzle2() {
 				validDivisions = getValidDivisions(strconv.Itoa(n))
 			}
 
-			for z := range validDivisions {
-				productList[i].possibleSeparation = splitString(z, nStr)
+			for _, div := range validDivisions {
+				productList[i].possibleSeparation = append(productList[i].possibleSeparation, splitString(div, nStr)...)
 			}
 		}
+		fmt.Println(productList[i])
 	}
 }
 
