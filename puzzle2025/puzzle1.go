@@ -15,7 +15,7 @@ type Rotation struct {
 
 func CreateStruct() []Rotation {
 	rotationList := []Rotation{}
-	puzzleInput := utils.LoadFile("puzzle2025/puzzletext/puzzle1sample.txt")
+	puzzleInput := utils.LoadFile("puzzle2025/puzzletext/puzzle1.txt")
 	for i := range puzzleInput {
 		movementStr := string(puzzleInput[i][1:])
 		movementInt, err := utils.ConvertStringToInt(movementStr)
@@ -40,6 +40,10 @@ func RotateTheDial(dialValue int, rotation *Rotation) int {
 			} else {
 				dialValue -= 1
 			}
+			// This took a while to add... This is because if we are at 99 and end at 0, we do not count as a hit without the below
+			if dialValue == 0 && i == rotation.Movement-1 {
+				hitZero += 1
+			}
 		} else if rotation.Direction == "R" {
 			if dialValue == 99 {
 				dialValue = 0
@@ -60,11 +64,12 @@ func SolvePuzzle1() {
 	stoppedAtZeroCount := 0
 	hitZeroCount := 0
 	rotationList := CreateStruct()
+	fmt.Println(dialValue)
 	for i := range rotationList {
 		hitZero := RotateTheDial(dialValue, &rotationList[i])
 		fmt.Println(rotationList[i])
 		if hitZero > 0 {
-			fmt.Println("Hit Zero (" + strconv.Itoa(hitZero) + ")")
+			fmt.Println(" -- Hit Zero (" + strconv.Itoa(hitZero) + ")")
 		}
 		hitZeroCount += hitZero
 		dialValue = rotationList[i].Position
@@ -72,6 +77,6 @@ func SolvePuzzle1() {
 			stoppedAtZeroCount += 1
 		}
 	}
-	fmt.Println(stoppedAtZeroCount)
-	fmt.Println(hitZeroCount)
+	fmt.Println("PuzzleA: " + strconv.Itoa(stoppedAtZeroCount))
+	fmt.Println("PuzzleB: " + strconv.Itoa(hitZeroCount))
 }
