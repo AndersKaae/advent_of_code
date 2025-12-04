@@ -9,9 +9,10 @@ import (
 )
 
 type Product struct {
-	source      string
-	firstIdInt  int
-	secondIdInt int
+	source             string
+	firstIdInt         int
+	secondIdInt        int
+	possibleSeparation []string
 }
 
 func CreatStruct() []Product {
@@ -32,26 +33,36 @@ func CreatStruct() []Product {
 		if err != nil {
 			panic("Unable to convert to int")
 		}
-		product := Product{listOfIds[i], firstIdInt, secondInt}
+		product := Product{listOfIds[i], firstIdInt, secondInt, []string{}}
 		productList = append(productList, product)
 	}
 	return productList
 }
 
 func SolvePuzzle2() {
-	invalidSum := 0
+	puzzle := "A"
 	productList := CreatStruct()
 	for i := range productList {
 		fmt.Println(productList[i])
 		for n := productList[i].firstIdInt; n <= productList[i].secondIdInt; n++ {
-			if IsInvalidId(n) {
-				fmt.Println(n)
-				invalidSum += n
+			nStr := strconv.Itoa(n)
+
+			var validDivisions []int
+
+			if puzzle == "A" {
+				validDivisions = []int{2}
+				if len(nStr)%2 != 0 {
+					continue
+				}
+			} else {
+				validDivisions = getValidDivisions(strconv.Itoa(n))
+			}
+
+			for z := range validDivisions {
+				productList[i].possibleSeparation = splitString(z, nStr)
 			}
 		}
-
 	}
-	fmt.Println(invalidSum)
 }
 
 func splitString(n int, s string) []string {
@@ -66,6 +77,17 @@ func splitString(n int, s string) []string {
 	}
 
 	return result
+}
+
+func getValidDivisions(s string) []int {
+	validDivision := []int{}
+	lengthS := len(s)
+	for i := 1; i < lengthS; i += 1 {
+		if lengthS%i == 0 {
+			validDivision = append(validDivision, i)
+		}
+	}
+	return validDivision
 }
 
 func IsInvalidId(id int) bool {

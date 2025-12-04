@@ -18,3 +18,21 @@ func TestSplitString(t *testing.T) {
 	}
 
 }
+
+func TestGetValidDivisions(t *testing.T) {
+	result1 := GetValidDivisions("1345")
+	expected1 := []int{1, 2}
+	if !reflect.DeepEqual(result1, expected1) {
+		t.Errorf("expected %v, got %v", expected1, result1)
+	}
+	result2 := GetValidDivisions("123")
+	expected2 := []int{1}
+	if !reflect.DeepEqual(result2, expected2) {
+		t.Errorf("expected %v, got %v", expected2, result2)
+	}
+	result3 := GetValidDivisions("123123123")
+	expected3 := []int{1, 3}
+	if !reflect.DeepEqual(result3, expected3) {
+		t.Errorf("expected %v, got %v", expected3, result3)
+	}
+}
